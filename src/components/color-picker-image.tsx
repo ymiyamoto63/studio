@@ -1,10 +1,10 @@
+
 "use client";
 
 import Image from 'next/image';
 import type { MouseEvent } from 'react';
 import { useRef, useState, useEffect } from 'react';
 import type { RgbColor } from '@/lib/personal-colors';
-import { Pipette } from 'lucide-react';
 
 interface ColorPickerImageProps {
   imageUrl?: string;
@@ -15,12 +15,15 @@ export function ColorPickerImage({ imageUrl, onColorSelect }: ColorPickerImagePr
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
-  const [isEyeDropperActive, setIsEyeDropperActive] = useState(false);
 
   useEffect(() => {
     if (imageUrl && imageRef.current) {
       setIsImageLoaded(false);
       const img = imageRef.current;
+      // Ensure existing onload/onerror are cleared before assigning new ones
+      img.onload = null;
+      img.onerror = null;
+
       img.onload = () => {
         setIsImageLoaded(true);
         if (canvasRef.current) {
@@ -37,32 +40,34 @@ export function ColorPickerImage({ imageUrl, onColorSelect }: ColorPickerImagePr
         console.error("Error loading image.");
         setIsImageLoaded(false);
       }
-      img.src = imageUrl; // This triggers the onload or onerror
+      // Setting src should happen after onload/onerror are set
+      img.src = imageUrl; 
+    } else if (!imageUrl) {
+      // Reset image loaded state if imageUrl is removed
+      setIsImageLoaded(false);
     }
   }, [imageUrl]);
 
   const handleCanvasClick = (event: MouseEvent<HTMLCanvasElement>) => {
-    if (!isEyeDropperActive) return;
-
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !isImageLoaded) return;
 
     const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
+    // Account for display scaling of the canvas
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
 
-    const actualX = Math.floor(x * scaleX);
-    const actualY = Math.floor(y * scaleY);
+    const x = (event.clientX - rect.left) * scaleX;
+    const y = (event.clientY - rect.top) * scaleY;
+    
+    const actualX = Math.floor(x);
+    const actualY = Math.floor(y);
     
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     const pixel = ctx.getImageData(actualX, actualY, 1, 1).data;
     onColorSelect({ r: pixel[0], g: pixel[1], b: pixel[2] });
-    setIsEyeDropperActive(false); 
   };
 
   return (
@@ -72,25 +77,15 @@ export function ColorPickerImage({ imageUrl, onColorSelect }: ColorPickerImagePr
           <canvas
             ref={canvasRef}
             onClick={handleCanvasClick}
-            className={`w-full h-auto rounded-lg shadow-md cursor-default ${isEyeDropperActive ? 'cursor-crosshair' : ''} ${!isImageLoaded ? 'hidden' : ''}`}
-            aria-label="Image for color picking"
+            className={`w-full h-auto rounded-lg shadow-md ${isImageLoaded ? 'cursor-crosshair' : 'cursor-default'} ${!isImageLoaded ? 'hidden' : ''}`}
+            aria-label="Image for color picking. Click to select a color."
           />
           {/* Hidden image tag for loading and getting natural dimensions */}
-          <img ref={imageRef} src={imageUrl} alt="Uploaded for analysis" className="hidden" />
-          {!isImageLoaded && (
+          <img ref={imageRef} src={imageUrl} alt="Uploaded for analysis" className="hidden" crossOrigin="anonymous" />
+          {isImageLoaded === false && ( // Show loading only when imageUrl is present but not yet loaded
             <div className="w-full h-64 bg-muted rounded-lg shadow-md flex items-center justify-center">
               <p className="text-muted-foreground">Loading image...</p>
             </div>
-          )}
-          {isImageLoaded && (
-             <button
-              onClick={() => setIsEyeDropperActive(!isEyeDropperActive)}
-              className={`absolute top-2 right-2 p-2 rounded-full bg-background/80 hover:bg-accent shadow-md transition-colors
-                          ${isEyeDropperActive ? 'text-primary ring-2 ring-primary' : 'text-foreground'}`}
-              aria-label={isEyeDropperActive ? "Deactivate color picker" : "Activate color picker"}
-            >
-              <Pipette className="w-6 h-6" />
-            </button>
           )}
         </>
       ) : (
@@ -106,3 +101,4 @@ export function ColorPickerImage({ imageUrl, onColorSelect }: ColorPickerImagePr
     </div>
   );
 }
+
