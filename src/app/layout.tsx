@@ -19,6 +19,12 @@ export const metadata: Metadata = {
   description: 'Upload an image and analyze colors to find your personal color season.',
   manifest: '/manifest.json',
   applicationName: 'Personal Color Analyzer',
+};
+
+export const viewport = {
+  themeColor: '#008080', // Should match theme_color in manifest.json
+  "mobile-web-app-capable": "yes", // For Android PWA behavior
+  "msapplication-TileColor": "#008080",
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -27,12 +33,6 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
-  themeColor: '#008080', // Should match theme_color in manifest.json
-  other: {
-    "mobile-web-app-capable": "yes", // For Android PWA behavior
-    "msapplication-TileColor": "#008080",
-    "msapplication-tap-highlight": "no",
-  }
 };
 
 export default function RootLayout({
