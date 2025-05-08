@@ -1,0 +1,10 @@
+{
+  "name": "Personal Color Analyzer",
+  "short_name": "ColorAnalyzer",
+  "description": "Upload an image and analyze colors to find your personal color season.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F5F5",
+  "theme_color": "#008080",
+  "orientation": "portrait-primary"
+}
