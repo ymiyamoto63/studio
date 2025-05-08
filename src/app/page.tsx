@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, ChangeEvent, useEffect } from 'react';
@@ -73,11 +74,11 @@ export default function PersonalColorAnalyzerPage() {
       <main className="w-full max-w-4xl space-y-8">
         <div className="bg-card p-6 rounded-xl shadow-xl border border-border">
           <label htmlFor="image-upload" className="w-full">
-            <Button asChild variant="outline" className="w-full py-6 border-dashed border-2 hover:border-primary hover:bg-accent transition-all duration-200 cursor-pointer">
-              <div>
+            <Button asChild variant="outline" className="w-full h-auto py-6 border-dashed border-2 hover:border-primary hover:bg-accent transition-all duration-200 cursor-pointer">
+              <div className="flex flex-col items-center justify-center text-center">
                 <UploadCloudIcon className="w-8 h-8 mb-2 text-primary" />
                 <span className="text-lg font-medium">Upload Image</span>
-                <p className="text-sm text-muted-foreground">Click or drag & drop (JPG, PNG, WEBP, GIF up to 5MB)</p>
+                <p className="text-sm text-muted-foreground px-2 break-words">Click or drag & drop (JPG, PNG, WEBP, GIF up to 5MB)</p>
               </div>
             </Button>
             <Input 
@@ -107,3 +108,4 @@ export default function PersonalColorAnalyzerPage() {
     </div>
   );
 }
+
